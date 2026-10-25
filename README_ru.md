@@ -12,6 +12,7 @@
 - [Деструкторизация](#деструкторизация)
 - [Модули](#модули)
 - [Параметры](#параметры)
+- [Rest](#rest)
 - [Classes](#classes)
 - [Symbols](#symbols)
 - [Maps](#maps)
@@ -472,18 +473,18 @@ import React, { Component, PropTypes } from "react";
 В ES5 существовали различные способы работы с функциями, которым требовались **значения по умолчанию**, **произвольное количество аргументов** и **именованные параметры**. В ES6 всё это — и даже больше — можно реализовать с помощью более лаконичного синтаксиса.
 
 ```javascript
-function addTwoNums(x,y){
-  x=x|0;
-  y=y|0;
-  return x+y;
+function addTwoNums(x, y) {
+  x = x | 0;
+  y = y | 0;
+  return x + y;
 }
 ```
 
 В ES6, мы можем просто сразу указать дефолтные параметры функции:
 
 ```javascript
-function addTwoNums(x=0,y=0){
-  return x+y;
+function addTwoNums(x = 0, y = 0) {
+  return x + y;
 }
 ```
 
@@ -492,3 +493,184 @@ addTwoNumbers(2, 4); // 6
 addTwoNumbers(2); // 2
 addTwoNumbers(); // 0
 ```
+
+## Rest
+
+Остаточные параметры
+
+В ES5 для работы с произвольным количеством аргументов использовался следующий подход:
+
+```javascript
+function logArguments() {
+  for (var i = 0; i < arguments.length; i++) {
+    console.log(arguments[i]);
+  }
+}
+```
+
+С помощью оператора **rest** («остаточные параметры») можно передать в функцию любое количество аргументов:
+
+```javascript
+function logArguments(...args) {
+  for (let arg of args) {
+    console.log(arg);
+  }
+}
+```
+
+### Именованные параметры
+
+Одним из способов реализации именованных параметров в ES5 был паттерн «объект опций» (**options object**), заимствованный из jQuery:
+
+```javascript
+function initializeCanvas(options) {
+  var height = options.height || 600;
+  var width = options.width || 400;
+  var lineStroke = options.lineStroke || "black";
+}
+```
+
+Того же результата можно добиться, используя деструктуризацию непосредственно в списке параметров функции:
+
+```javascript
+function initializeCanvas({ height = 600, width = 400, lineStroke = "black" }) {
+  // Здесь можно использовать переменные height, width, lineStroke
+}
+```
+
+Если нужно сделать весь объект параметров необязательным, можно задать пустой объект в качестве значения по умолчанию при деструктуризации:
+
+```javascript
+function initializeCanvas({
+  height = 600,
+  width = 400,
+  lineStroke = "black",
+} = {}) {
+  // ...
+}
+```
+
+### Оператор расширения (Spread Operator)
+
+В ES5 для поиска максимального значения в массиве можно было воспользоваться методом `apply` у `Math.max`:
+
+````javascript
+Math.max.apply(null, [-1, 100, 9001, -32]);
+``` // 9001
+````
+
+В ES6 появился оператор расширения (spread operator), который позволяет передавать массив значений в качестве аргументов функции:
+
+```javascript
+Math.max(...[-1, 100, 9001, -32]); // 9001
+```
+
+С помощью этого интуитивно понятного синтаксиса можно легко объединять массивы:
+
+```javascript
+let cities = ["San Francisco", "Los Angeles"];
+let places = ["Miami", ...cities, "Chicago"]; // ['Miami', 'San Francisco', 'Los Angeles', 'Chicago']
+```
+
+<sup>[(Вернуться к содержанию)](#содержание)</sup>
+
+## Classes
+
+До появления ES6 классы реализовывались через создание функции-конструктора и добавление свойств в прототип:
+
+```javascript
+function Person(name, age, gender) {
+  this.name = name;
+  this.age = age;
+  this.gender = gender;
+}
+
+Person.prototype.incrementAge = function () {
+  return (this.age += 1);
+};
+```
+
+А расширение классов выполнялось следующим образом:
+
+```javascript
+function Personal(name, age, gender, occupation, hobby) {
+  Person.call(this, name, age, gender);
+  this.occupation = occupation;
+  this.hobby = hobby;
+}
+
+Personal.prototype = Object.create(Person.prototype);
+Personal.prototype.constructor = Personal;
+Personal.prototype.incrementAge = function () {
+  Person.prototype.incrementAge.call(this);
+  this.age += 20;
+  console.log(this.age);
+};
+```
+
+В ES6 появился долгожданный «синтаксический сахар» для решения этих задач. Теперь можно создавать классы напрямую:
+
+```javascript
+class Person {
+  constructor(name, age, gender) {
+    this.name = name;
+    this.age = age;
+    this.gender = gender;
+  }
+
+  incrementAge() {
+    this.age += 1;
+  }
+}
+```
+
+А расширить их можно с помощью ключевого слова `extends`:
+
+```javascript
+class Personal extends Person {
+  constructor(name, age, gender, occupation, hobby) {
+    super(name, age, gender);
+    this.occupation = occupation;
+    this.hobby = hobby;
+  }
+
+  incrementAge() {
+    super.incrementAge();
+    this.age += 20;
+    console.log(this.age);
+  }
+}
+```
+
+> **Рекомендация**: Хотя синтаксис создания классов в ES6 скрывает механизмы реализации и работы прототипов «под капотом», это отличное решение для начинающих, позволяющее писать более чистый код.
+
+<sup>[(Вернуться к содержанию)](#содержание)</sup>
+
+## Symbols
+
+Символы существовали и до появления ES6, но теперь у нас есть открытый интерфейс для прямого взаимодействия с ними. Символы — это неизменяемые и уникальные сущности, которые можно использовать в качестве ключей в любых хеш-структурах (объектах).
+
+### Symbol( )
+
+Вызов `Symbol()` или `Symbol(description)` создает уникальный символ, который невозможно найти через глобальный реестр. Один из сценариев использования `Symbol()` — дополнение объектов или пространств имен сторонних библиотек собственной логикой; при этом вы можете быть уверены, что ваш код не вступит в конфликт с обновлениями этой библиотеки. Например, если вы хотите добавить метод `refreshComponent` в класс `React.Component` и быть уверенными, что не перезапишете метод, который может появиться в одной из будущих версий библиотеки:
+
+```javascript
+const refreshComponent = Symbol();
+
+React.Component.prototype[refreshComponent] = () => {
+  // выполнение какого-либо действия
+};
+```
+
+### Symbol.for(key)
+
+Метод `Symbol.for(key)` создает символ, который также является неизменяемым и уникальным, но при этом доступен через глобальный реестр. Два вызова `Symbol.for(key)` с одним и тем же ключом вернут один и тот же экземпляр символа. ПРИМЕЧАНИЕ: Это не относится к
+`Symbol(description)`:
+
+```javascript
+Symbol("foo") === Symbol("foo"); // false
+Symbol.for("foo") === Symbol("foo"); // false
+Symbol.for("foo") === Symbol.for("foo"); // true
+```
+
+Распространенный сценарий использования символов (Symbols) — в частности, с применением `Symbol.for(key)` — заключается в обеспечении взаимодействия между различными частями кода. Этого можно добиться, если ваш код будет искать наличие свойства, заданного символом, в...
