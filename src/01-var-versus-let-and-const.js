@@ -1,5 +1,3 @@
-// var-let-const-demo.js
-
 console.log("=== Поднятие (hoisting) ===");
 
 // С var можно обратиться до объявления — будет undefined

@@ -35,7 +35,7 @@ console.log('Результат prefixNameArrow:', s.prefixNameArrow(['b', 'c'])
 console.log('\n=== 3. Возврат объекта из стрелочной функции: нужны скобки ===');
 
 // Без скобок JS думает, что это тело функции — вернёт undefined
-const badUser = id => { id: id, active: true }; // ❌ ошибка логики
+// const badUser = id => { id: id, active: true }; // ❌ ошибка логики
 
 // Правильно: оборачиваем объект в скобки
 const goodUser = id => ({ id: id, active: true }); // ✅
